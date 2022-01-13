@@ -27,7 +27,7 @@
 #include "stm32f0xx_hal.h"
 uint32_t writeFlashData;
 uint32_t addr = 0x08007000;
-int max_count=10;
+int max_count=10;  // 開機次數
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
