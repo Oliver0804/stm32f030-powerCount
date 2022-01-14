@@ -26,15 +26,15 @@
 /* USER CODE BEGIN Includes */
 #include "stm32f0xx_hal.h"
 
-#define YEAR 4   // 365*3
-#define OneSec 100
+#define YEAR 4   // 365*3  天數限制
+#define OneSec 100 //系統秒數 預設1000 測試可以改為100
 uint32_t writeFlashData;
 uint32_t addr_timesCount = 0x08007000;
 uint32_t addr_dayCount = 0x08007400;
 
 int dayCount = 0;
 
-int max_count = 10;  // 開機次數
+int max_count = 10;  // 開機次數限制
 int buzz_flag = 0;
 int buzz_count = 0;
 
