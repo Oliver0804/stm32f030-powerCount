@@ -58,10 +58,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define OK_Pin GPIO_PIN_5
-#define OK_GPIO_Port GPIOA
-#define RESET_Pin GPIO_PIN_1
-#define RESET_GPIO_Port GPIOB
+#define RESET_Pin GPIO_PIN_0
+#define RESET_GPIO_Port GPIOA
+#define TimesCount_Pin GPIO_PIN_5
+#define TimesCount_GPIO_Port GPIOA
+#define YearControl_Pin GPIO_PIN_6
+#define YearControl_GPIO_Port GPIOA
+#define Buzz_Pin GPIO_PIN_7
+#define Buzz_GPIO_Port GPIOA
+#define BlinkLed_Pin GPIO_PIN_1
+#define BlinkLed_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

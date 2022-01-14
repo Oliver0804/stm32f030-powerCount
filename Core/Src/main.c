@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -25,24 +25,33 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32f0xx_hal.h"
+
+#define YEAR 4   // 365*3
+#define OneSec 100
 uint32_t writeFlashData;
-uint32_t addr = 0x08007000;
-int max_count=10;  // 開機次數
+uint32_t addr_timesCount = 0x08007000;
+uint32_t addr_dayCount = 0x08007400;
+
+int dayCount = 0;
+
+int max_count = 10;  // 開機次數
+int buzz_flag = 0;
+int buzz_count = 0;
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
 #ifdef __GNUC__
-  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
-  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
 
-PUTCHAR_PROTOTYPE
-{
-HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-return ch;
+PUTCHAR_PROTOTYPE {
+	HAL_UART_Transmit(&huart1, (uint8_t*) &ch, 1, 0xFFFF);
+	return ch;
 }
 
 /* USER CODE END PTD */
@@ -71,10 +80,9 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 //FLASH写入数据测试
-void writeFlashTest(void)
-{
+void writeFlashTest(uint32_t addr, int data) {
 	//1、解锁FLASH
-  HAL_FLASH_Unlock();
+	HAL_FLASH_Unlock();
 
 	//2、擦除FLASH
 	//初始化FLASH_EraseInitTypeDef
@@ -88,126 +96,155 @@ void writeFlashTest(void)
 	HAL_FLASHEx_Erase(&f, &PageError);
 
 	//3、对FLASH烧写
-	HAL_FLASH_Program(TYPEPROGRAM_WORD, addr, writeFlashData);
-
+	HAL_FLASH_Program(TYPEPROGRAM_WORD, addr, data);
+	HAL_Delay(5);
 	//4、锁住FLASH
-  HAL_FLASH_Lock();
+	HAL_FLASH_Lock();
 }
 
 //FLASH读取数据测试
-void printFlashTest(void)
-{
-  uint32_t temp = *(__IO uint32_t*)(addr);
+int printFlashTest(uint32_t addr) {
+	uint32_t temp = *(__IO uint32_t*) (addr);
 
 	printf("addr:0x%x, data:0x%x\r\n", addr, temp);
-	writeFlashData=temp+1;
-	if(writeFlashData>=max_count){
-		printf("\rcount>%d\r", max_count);
-		HAL_GPIO_WritePin(OK_GPIO_Port, OK_Pin, GPIO_PIN_SET);
-	}
+	//writeFlashData = temp + 1;
+	return temp;
+
 }
 
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-  /* USER CODE BEGIN 1 */
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USART1_UART_Init();
+	/* USER CODE BEGIN 2 */
 	//flash TEST
 	//writeFlashData = 0;
-  printf("\n--s--\n");
-  	  printFlashTest();
-	writeFlashTest();
-
+	printf("\n--s--\n");
+	int count = 0;
+	count = printFlashTest(addr_timesCount);
+	count++;
+	writeFlashTest(addr_timesCount, count);
+	dayCount = printFlashTest(addr_dayCount);
 	printf("\n--e--\n");
-	int count=0;
 
-  /* USER CODE END 2 */
+	int timer = 0;
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1) {
+		/* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-	  if(HAL_GPIO_ReadPin(RESET_GPIO_Port, RESET_Pin)==0){
-		  printf("\n--reset--\n");
-		  writeFlashData=0;
-		  writeFlashTest();
-		  HAL_GPIO_WritePin(OK_GPIO_Port, OK_Pin, GPIO_PIN_RESET);
-	  }
-	  printFlashTest();
-	  HAL_Delay(1000);
-  }
-  /* USER CODE END 3 */
+		/* USER CODE BEGIN 3 */
+		HAL_GPIO_TogglePin(BlinkLed_GPIO_Port, BlinkLed_Pin);
+		HAL_Delay(OneSec);
+
+		if (HAL_GPIO_ReadPin(RESET_GPIO_Port, RESET_Pin) == 0) {
+			printf("\n--reset--\n");
+			writeFlashTest(addr_timesCount, 0);
+			writeFlashTest(addr_dayCount, 0);
+			count = 0;
+			dayCount=0;
+		}
+		printFlashTest(addr_timesCount);
+		if (count >= max_count) {
+			printf("\rcount>%d\r", max_count);
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
+					GPIO_PIN_SET);
+		} else {
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
+					GPIO_PIN_RESET);
+		}
+
+		if (timer > 86400) {	// 天
+			timer = 0;
+			dayCount = printFlashTest(addr_dayCount);
+			dayCount++;
+			writeFlashTest(addr_dayCount, dayCount);
+			printf("\nTimerReset: %1d \t dayCount:%1d \n", timer, dayCount);
+		} else {
+			timer = timer + 1000;
+			printf("\nTimer: %1d \n", timer);
+		}
+		if (dayCount >= YEAR) {
+			buzz_flag = 1;
+		}else{
+			buzz_flag = 0;
+		}
+		if (buzz_flag == 1) {
+			if (timer % 4 == 0) {
+				printf("\nbuzz!!\n");
+				HAL_GPIO_WritePin(Buzz_GPIO_Port, Buzz_Pin, GPIO_PIN_SET);
+				HAL_Delay(OneSec/2);
+				HAL_GPIO_WritePin(Buzz_GPIO_Port, Buzz_Pin, GPIO_PIN_RESET);
+				buzz_flag = 0;
+			}
+		}
+	}
+	/* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+ * @brief System Clock Configuration
+ * @retval None
+ */
+void SystemClock_Config(void) {
+	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+	RCC_PeriphCLKInitTypeDef PeriphClkInit = { 0 };
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the RCC_OscInitTypeDef structure.
+	 */
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		Error_Handler();
+	}
+	/** Initializes the CPU, AHB and APB buses clocks
+	 */
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+		Error_Handler();
+	}
+	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+	PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
+		Error_Handler();
+	}
 }
 
 /* USER CODE BEGIN 4 */
@@ -215,18 +252,16 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
-  /* USER CODE END Error_Handler_Debug */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
+void Error_Handler(void) {
+	/* USER CODE BEGIN Error_Handler_Debug */
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
