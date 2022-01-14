@@ -151,6 +151,16 @@ int main(void)
 	count = printFlashTest(addr_timesCount);
 	count++;
 	writeFlashTest(addr_timesCount, count);
+	//檢查是否超出次數，超出則改變TimerCount(PA5狀態)
+	if (count >= max_count) {
+		printf("\rcount>%d\r", max_count);
+		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
+				GPIO_PIN_SET);
+	} else {
+		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
+				GPIO_PIN_RESET);
+	}
+
 	dayCount = printFlashTest(addr_dayCount);
 	printf("\n--e--\n");
 
@@ -165,7 +175,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		HAL_GPIO_TogglePin(BlinkLed_GPIO_Port, BlinkLed_Pin);
 		HAL_Delay(OneSec);
-
+		//清除PA1進行軟體計數Reset
 		if (HAL_GPIO_ReadPin(RESET_GPIO_Port, RESET_Pin) == 0) {
 			printf("\n--reset--\n");
 			writeFlashTest(addr_timesCount, 0);
@@ -174,6 +184,7 @@ int main(void)
 			dayCount=0;
 		}
 		printFlashTest(addr_timesCount);
+		//檢查是否超出次數，超出則改變TimerCount(PA5狀態)
 		if (count >= max_count) {
 			printf("\rcount>%d\r", max_count);
 			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
@@ -182,7 +193,11 @@ int main(void)
 			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
 					GPIO_PIN_RESET);
 		}
-
+		//計數天數
+		/*
+		 * 一天=86400秒
+		 * 每過一天進行計數並保存至FLASH中
+		 */
 		if (timer > 86400) {	// 天
 			timer = 0;
 			dayCount = printFlashTest(addr_dayCount);
@@ -193,6 +208,9 @@ int main(void)
 			timer = timer + 1000;
 			printf("\nTimer: %1d \n", timer);
 		}
+		/*
+		 * 當FLASH中天數超出設定天數，則改變dayControl_Pin(PA6)
+		 */
 		if (dayCount >= YEAR) {
 			HAL_GPIO_WritePin(dayControl_GPIO_Port, dayControl_Pin, GPIO_PIN_RESET);
 			buzz_flag = 1;
@@ -200,6 +218,11 @@ int main(void)
 			HAL_GPIO_WritePin(dayControl_GPIO_Port, dayControl_Pin, GPIO_PIN_SET);
 			buzz_flag = 0;
 		}
+
+		/*
+		 * Buzz flag = 1 時 蜂鳴器鳴叫半秒
+		 * timer%4 則 表示 每四秒進行一次
+		 */
 		if (buzz_flag == 1) {
 			if (timer % 4 == 0) {
 				printf("\nbuzz!!\n");
