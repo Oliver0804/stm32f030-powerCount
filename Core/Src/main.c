@@ -26,15 +26,16 @@
 /* USER CODE BEGIN Includes */
 #include "stm32f0xx_hal.h"
 
-#define YEAR 4   // 365*3  天數限制
-#define OneSec 100 //系統秒數 預設1000 測試可以改為100
+#define YEAR 365*3   // 365*3  天數限制
+#define OneSec 1000 //系統秒數 預設1000 測試可以改為100
+#define OneSetpTime 1000 //測試時可以改為1000
 uint32_t writeFlashData;
 uint32_t addr_timesCount = 0x08007000;
 uint32_t addr_dayCount = 0x08007400;
 
 int dayCount = 0;
 
-int max_count = 10;  // 開機次數限制
+int max_count = 3000;  // 開機次數限制
 int buzz_flag = 0;
 int buzz_count = 0;
 
@@ -97,7 +98,7 @@ void writeFlashTest(uint32_t addr, int data) {
 
 	//3、对FLASH烧写
 	HAL_FLASH_Program(TYPEPROGRAM_WORD, addr, data);
-	HAL_Delay(5);
+	HAL_Delay(1);
 	//4、锁住FLASH
 	HAL_FLASH_Lock();
 }
@@ -146,6 +147,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	//flash TEST
 	//writeFlashData = 0;
+    HAL_Delay(500);
 	printf("\n--s--\n");
 	int count = 0;
 	count = printFlashTest(addr_timesCount);
@@ -165,6 +167,7 @@ int main(void)
 	printf("\n--e--\n");
 
 	int timer = 0;
+	int reset_count=0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -177,21 +180,33 @@ int main(void)
 		HAL_Delay(OneSec);
 		//清除PA1進行軟體計數Reset
 		if (HAL_GPIO_ReadPin(RESET_GPIO_Port, RESET_Pin) == 0) {
-			printf("\n--reset--\n");
-			writeFlashTest(addr_timesCount, 0);
-			writeFlashTest(addr_dayCount, 0);
-			count = 0;
-			dayCount=0;
+			reset_count++;
+			if(reset_count>=10){
+				printf("\n--reset--\n");
+				writeFlashTest(addr_timesCount, 0);
+				writeFlashTest(addr_dayCount, 0);
+				count = 0;
+				dayCount=0;
+				//reset_count=0;
+			}
+		}else{
+			reset_count=0;
 		}
+
 		printFlashTest(addr_timesCount);
 		//檢查是否超出次數，超出則改變TimerCount(PA5狀態)
-		if (count >= max_count) {
+		if(count >= max_count) {
 			printf("\rcount>%d\r", max_count);
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
-					GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
+		} else if(count >= 5){
+			printf("\rcount>5\r");
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
 		} else {
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
-					GPIO_PIN_RESET);
+
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
 		}
 		//計數天數
 		/*
@@ -205,7 +220,7 @@ int main(void)
 			writeFlashTest(addr_dayCount, dayCount);
 			printf("\nTimerReset: %1d \t dayCount:%1d \n", timer, dayCount);
 		} else {
-			timer = timer + 1000;
+			timer = timer + OneSetpTime;
 			printf("\nTimer: %1d \n", timer);
 		}
 		/*

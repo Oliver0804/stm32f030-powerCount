@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define RESET_Pin GPIO_PIN_0
 #define RESET_GPIO_Port GPIOA
+#define TimesCount_OK_Pin GPIO_PIN_4
+#define TimesCount_OK_GPIO_Port GPIOA
 #define TimesCount_Pin GPIO_PIN_5
 #define TimesCount_GPIO_Port GPIOA
 #define dayControl_Pin GPIO_PIN_6
