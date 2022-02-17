@@ -597,21 +597,21 @@ int main(void)
 		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
  800042a:	2390      	movs	r3, #144	; 0x90
  800042c:	05db      	lsls	r3, r3, #23
- 800042e:	2201      	movs	r2, #1
+ 800042e:	2200      	movs	r2, #0
  8000430:	2120      	movs	r1, #32
  8000432:	0018      	movs	r0, r3
  8000434:	f000 ffc3 	bl	80013be <HAL_GPIO_WritePin>
  8000438:	e006      	b.n	8000448 <main+0x84>
-				GPIO_PIN_SET);
+				GPIO_PIN_RESET);
 	} else {
 		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
  800043a:	2390      	movs	r3, #144	; 0x90
  800043c:	05db      	lsls	r3, r3, #23
- 800043e:	2200      	movs	r2, #0
+ 800043e:	2201      	movs	r2, #1
  8000440:	2120      	movs	r1, #32
  8000442:	0018      	movs	r0, r3
  8000444:	f000 ffbb 	bl	80013be <HAL_GPIO_WritePin>
-				GPIO_PIN_RESET);
+				GPIO_PIN_SET);
 	}
 
 	dayCount = printFlashTest(addr_dayCount);
@@ -716,17 +716,17 @@ int main(void)
  80004e2:	0011      	movs	r1, r2
  80004e4:	0018      	movs	r0, r3
  80004e6:	f002 f8f7 	bl	80026d8 <iprintf>
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
  80004ea:	2390      	movs	r3, #144	; 0x90
  80004ec:	05db      	lsls	r3, r3, #23
- 80004ee:	2201      	movs	r2, #1
+ 80004ee:	2200      	movs	r2, #0
  80004f0:	2120      	movs	r1, #32
  80004f2:	0018      	movs	r0, r3
  80004f4:	f000 ff63 	bl	80013be <HAL_GPIO_WritePin>
-			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
  80004f8:	2390      	movs	r3, #144	; 0x90
  80004fa:	05db      	lsls	r3, r3, #23
- 80004fc:	2201      	movs	r2, #1
+ 80004fc:	2200      	movs	r2, #0
  80004fe:	2110      	movs	r1, #16
  8000500:	0018      	movs	r0, r3
  8000502:	f000 ff5c 	bl	80013be <HAL_GPIO_WritePin>
@@ -739,34 +739,34 @@ int main(void)
  800050e:	4b50      	ldr	r3, [pc, #320]	; (8000650 <main+0x28c>)
  8000510:	0018      	movs	r0, r3
  8000512:	f002 f8e1 	bl	80026d8 <iprintf>
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
  8000516:	2390      	movs	r3, #144	; 0x90
  8000518:	05db      	lsls	r3, r3, #23
- 800051a:	2201      	movs	r2, #1
+ 800051a:	2200      	movs	r2, #0
  800051c:	2120      	movs	r1, #32
  800051e:	0018      	movs	r0, r3
  8000520:	f000 ff4d 	bl	80013be <HAL_GPIO_WritePin>
-			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
  8000524:	2390      	movs	r3, #144	; 0x90
  8000526:	05db      	lsls	r3, r3, #23
- 8000528:	2200      	movs	r2, #0
+ 8000528:	2201      	movs	r2, #1
  800052a:	2110      	movs	r1, #16
  800052c:	0018      	movs	r0, r3
  800052e:	f000 ff46 	bl	80013be <HAL_GPIO_WritePin>
  8000532:	e00d      	b.n	8000550 <main+0x18c>
 		} else {
 
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
  8000534:	2390      	movs	r3, #144	; 0x90
  8000536:	05db      	lsls	r3, r3, #23
- 8000538:	2200      	movs	r2, #0
+ 8000538:	2201      	movs	r2, #1
  800053a:	2120      	movs	r1, #32
  800053c:	0018      	movs	r0, r3
  800053e:	f000 ff3e 	bl	80013be <HAL_GPIO_WritePin>
-			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
  8000542:	2390      	movs	r3, #144	; 0x90
  8000544:	05db      	lsls	r3, r3, #23
- 8000546:	2200      	movs	r2, #0
+ 8000546:	2201      	movs	r2, #1
  8000548:	2110      	movs	r1, #16
  800054a:	0018      	movs	r0, r3
  800054c:	f000 ff37 	bl	80013be <HAL_GPIO_WritePin>

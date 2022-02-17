@@ -157,10 +157,10 @@ int main(void)
 	if (count >= max_count) {
 		printf("\rcount>%d\r", max_count);
 		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
-				GPIO_PIN_SET);
+				GPIO_PIN_RESET);
 	} else {
 		HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,
-				GPIO_PIN_RESET);
+				GPIO_PIN_SET);
 	}
 
 	dayCount = printFlashTest(addr_dayCount);
@@ -197,16 +197,16 @@ int main(void)
 		//檢查是否超出次數，超出則改變TimerCount(PA5狀態)
 		if(count >= max_count) {
 			printf("\rcount>%d\r", max_count);
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
-			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
-		} else if(count >= 5){
-			printf("\rcount>5\r");
-			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
-			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
-		} else {
-
 			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_RESET);
+		} else if(count >= 5){
+			printf("\rcount>5\r");
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
+		} else {
+
+			HAL_GPIO_WritePin(TimesCount_GPIO_Port, TimesCount_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(TimesCount_OK_GPIO_Port, TimesCount_OK_Pin,GPIO_PIN_SET);
 		}
 		//計數天數
 		/*
